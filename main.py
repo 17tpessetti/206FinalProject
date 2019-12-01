@@ -1,6 +1,8 @@
 import spotipy
 import requests
 import json
+import sqlite3
+import os
 import spotipy.util as util
 from spotipy.oauth2 import SpotifyClientCredentials #To access authorised Spotify data
 
@@ -13,11 +15,6 @@ user = spotify.current_user()
 displayName = user['display_name']
 
 
-#result = spotify.search(name) #search query
-
-#user_playlist_tracks
-
-
 def get_playlist(username, playlist_name):
     playlists = spotify.user_playlists(username)
     for playlist in playlists['items']:
@@ -25,16 +22,36 @@ def get_playlist(username, playlist_name):
             final_playlist = playlist
             return final_playlist['id']
 
-
-australia = get_playlist('17tpessetti', 'Australia Top 50 SI 206')
-tracks = spotify.user_playlist_tracks('17tpessetti', australia, limit=20)
-#HERE: MAKE A LIST OF DICTIONARIES WHERE THE KEY IS THE SONG NAME AND THE VALUES ARE ARTIST, LENGTH, COUNTRY IT IS FROM, 
-print(tracks)
-
-def get_top_20_tracks(playlist, api_key):
+def get_top_20_tracks(playlist, country):
     user_id = '17tpessetti'
-    playlist_link = 'https://api.spotify.com/v1/users/17tpessetti/playlists'
-    pass
+    playlist = get_playlist(user_id, playlist)
+    tracks = spotify.user_playlist_tracks(user_id, playlist, limit = 20)
+    songs_list = []
+    for song in tracks['items']:
+        d = {}
+        d['song_name'] = song['track']['name']
+        d['artist'] = song['track']['artists'][0]['name']
+        d['length'] = song['track']['duration_ms']/1000
+        songs_list.append(d)
+    return songs_list
+
+aus = get_top_20_tracks('Australia Top 50 SI 206', 'Australia')
+
+large_dict = {}
+large_dict['Australia'] = aus
+
+with open('data.txt', 'w') as json_file:
+    json.dump(large_dict, json_file)
+
+
+def create_atabase(db):
+    path = os.path.dirname(os.path.abspath(__file__))
+    conn = sqlite3.connect(path+'/'+db)
+    cur = conn.cursor()
+    cur.execute('CREATE TABLE IF NOT EXISTS Top_20(Song_Name TEXT, Artist TEXT, Length FLOAT, country TEXT)')
+
+
+
 
 #here are examples for api calls for musixmatch
 
