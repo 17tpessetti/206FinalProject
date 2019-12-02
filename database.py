@@ -31,5 +31,9 @@ def insert_values(data_file):
     conn.commit()
 
 
+#checks to see if data was already input into the database, and if it wasn't, then it inputs the data - if it was, it does not duplicate the data
 create_database()
-insert_values('data.txt')
+song = cur.execute('SELECT Song_Name from Top_20_Spotipy WHERE Artist = ?', ('Lunay', ))
+s = cur.fetchone()
+if (type(s) != tuple):
+    insert_values('data.txt')
