@@ -7,7 +7,7 @@ import spotipy.util as util
 from spotipy.oauth2 import SpotifyClientCredentials #To access authorised Spotify data
 
 
-db = 'Spotipy_Data.db'
+db = 'Music_Data.db'
 path = os.path.dirname(os.path.abspath(__file__))
 conn = sqlite3.connect(path+'/'+db)
 cur = conn.cursor()
@@ -20,7 +20,7 @@ displayName = user['display_name']
 
 #creating the database
 def create_database():
-    cur.execute('CREATE TABLE IF NOT EXISTS Top_100_Spotipy(Song_Name TEXT, Artist TEXT, Length FLOAT)')
+    cur.execute('CREATE TABLE IF NOT EXISTS Spotipy(Song_Name TEXT, Artist TEXT, Length FLOAT, Spotify_Id TEXT)')
 
 #getting the playlist
 def get_playlist(username, playlist_name):
@@ -41,12 +41,13 @@ def get_tracks(playlist):
         song_name = song['track']['name']
         artist = song['track']['artists'][0]['name']
         length = song['track']['duration_ms']/1000
-        cur.execute("SELECT song_name FROM Top_100_Spotipy WHERE song_name=?", (song_name, ))
+        spotify_id = song['track']['id']
+        cur.execute("SELECT song_name FROM Spotipy WHERE song_name=?", (song_name, ))
         result = cur.fetchone()
         if result:
             continue
         else:
-            cur.execute("INSERT INTO Top_100_Spotipy (Song_Name, Artist, Length) VALUES (?,?,?)", (song_name, artist, length))
+            cur.execute("INSERT INTO Spotipy (Song_Name, Artist, Length, Spotify_Id) VALUES (?,?,?,?)", (song_name, artist, length, spotify_id))
             count += 1
             conn.commit()
         if count == 20:
