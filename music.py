@@ -18,11 +18,11 @@ format_url = "?format=json&callback=callback"
 
 
 def create_table():
-    cur.execute("CREATE TABLE IF NOT EXISTS Hot_100_Musixmatch_Artists(Song_Name TEXT, Artist TEXT)")
+    cur.execute("CREATE TABLE IF NOT EXISTS Hot_100_Musixmatch_Artists(Song_Name TEXT, Artist TEXT, Num_Favorite INTEGER)")
     cur.execute("CREATE TABLE IF NOT EXISTS Hot_100_Musixmatch_Songs(Song_Name TEXT, Musixmatch_id INTEGER)")
 
 
-api_call_us = 'https://api.musixmatch.com/ws/1.1/chart.tracks.get?chart_name=hot&page_size=100&country=us&apikey=12d054c3145863550c882f72f39fdb15'
+api_call_us = 'https://api.musixmatch.com/ws/1.1/chart.tracks.get?chart_name=mxmweekly&page_size=100&country=us&apikey=12d054c3145863550c882f72f39fdb15'
 
 def get_tracks(api):
     request = requests.get(api)
@@ -32,12 +32,13 @@ def get_tracks(api):
         song_name = song["track"]["track_name"]
         artist = song["track"]["artist_name"]
         song_id = song["track"]["track_id"]
+        num_favorite = song["track"]["num_favourite"]
         cur.execute("SELECT song_name FROM Hot_100_Musixmatch_Artists WHERE song_name=?", (song_name, ))
         result = cur.fetchone()
         if result:
             continue
         else:
-            cur.execute("INSERT INTO Hot_100_Musixmatch_Artists (Song_Name, Artist) VALUES (?,?)", (song_name,artist))
+            cur.execute("INSERT INTO Hot_100_Musixmatch_Artists (Song_Name, Artist, Num_Favorite) VALUES (?,?,?)", (song_name,artist,num_favorite))
             cur.execute("INSERT INTO Hot_100_Musixmatch_Songs (Song_Name, Musixmatch_id) VALUES (?,?)", (song_name, song_id))
             count += 1
             conn.commit()
