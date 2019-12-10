@@ -18,6 +18,9 @@ def get_favs_from_db():
     result = cur.fetchall()
     for item in result:
         total += item[0]
-    return total
+    with open('musixmatchcalculations.csv','w') as fil:
+        w = csv.writer(fil)
+        w.writerow(['Artist','Total Number of Favorties'])
+        w.writerow(["Billie Eilish",total])
 
-print(get_favs_from_db()) #total num of song favs by artist Billie Eilish
+get_favs_from_db() #total number of favorites for artist Billie Eilish
