@@ -32,13 +32,15 @@ def get_common_song_id():
     LEFT JOIN Hot_100_Musixmatch_Songs\
     ON Spotipy_Ids.Song_Name = Hot_100_Musixmatch_Songs.Song_Name"
     cur.execute(sql)
-    cur.execute("SELECT COUNT(Musixmatch_id) FROM Spotipy_Ids")
-    result = cur.fetchone()
-    spotify = 100-result
-    musixmatch = 100-result
-    musixmatch_per = 100-result/100
-    shared = result
-    total_shared = result/100
+    result = cur.fetchall()
+    shared_counter = 0
+    for x in result:
+        if x[3] != None:
+            shared_counter+=1
+    spotify = 100-shared_counter
+    musixmatch = 100-shared_counter
+    shared = shared_counter
+    total_shared = shared_counter/100
     with open('dbcalculation.csv', 'w') as fil:
         w = csv.writer(fil)
         w.writerow(['Songs only on Spotify','Songs only on Musixmatch','Shared Songs','percentage'])
@@ -46,9 +48,24 @@ def get_common_song_id():
 
 
 def make_shared_chart():
-    v = vplt.venn2(subsets={'10': 100, '01': 100, '11': 36}, set_labels = ('A', 'B'),set_colors=('g','b'))
+    spot_only = 0
+    musix_only = 0
+    shared = 0
+    with open ('dbcalculation.csv') as csv_file:
+        csv_reader = csv.reader(csv_file, delimiter=',')
+        count = 0
+        for row in csv_reader:
+            if count == 0:
+                count += 1
+                continue
+            else:
+                spot_only = float(row[0])
+                musix_only = float(row[1])
+                shared = float(row[2])
+    v = vplt.venn2(subsets={'10': spot_only, '01': musix_only, '11': shared}, set_labels = ('A', 'B'),set_colors=('g','b'))
     v.get_label_by_id('A').set_text('Spotify')
     v.get_label_by_id('B').set_text('MusixMatch')
+    plt.title("Shared Songs Between Spotify and Musixmatch")
     plt.show()
 
 
