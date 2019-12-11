@@ -52,15 +52,15 @@ def get_data_from_db():
     with open('spotipycalculations.csv', 'w') as fil:
         writer = csv.writer(fil)
         writer.writerow(['Lengths of songs (in minutes)', 'Number of songs'])
-        writer.writerow(['Shortest than 2:30', shortest])
-        writer.writerow(['Between 2:30 and 2:45', two45])
-        writer.writerow(['Between 2:45 and 3:00', lessthan3])
-        writer.writerow(['Between 3:00 and 3:15', threemin15])
-        writer.writerow(['Between 3:15 and 3:30', threemin30])
-        writer.writerow(['Between 3:30 and 3:45', threemin45])
-        writer.writerow(['Between 3:45 and 4:00', fourmin])
-        writer.writerow(['Between 4:00 and 4:15', fourmin15])
-        writer.writerow(['Longer than 4:15', fourmin30])
+        writer.writerow(['< 2:30', shortest])
+        writer.writerow(['2:30 - 2:45', two45])
+        writer.writerow(['2:45 - 3:00', lessthan3])
+        writer.writerow(['3:00 - 3:15', threemin15])
+        writer.writerow(['3:15 - 3:30', threemin30])
+        writer.writerow(['3:30 - 3:45', threemin45])
+        writer.writerow(['3:45 - 4:00', fourmin])
+        writer.writerow(['4:00 - 4:15', fourmin15])
+        writer.writerow(['> 4:15', fourmin30])
 
     #getting the length of each song name and writing it to a csv file
     cur.execute('SELECT Song_Name from Spotipy')
@@ -118,7 +118,7 @@ def make_lengths_graph():
     plt.xticks(rotation=90)
     plt.ylabel("Count of Songs per Length")
     plt.title("Number of Songs on Spotify Top 100 by Length")
-    plt.savefig("spotify_bargraph.png")
+    plt.savefig("spotify_bargraph.png", bbox_inches='tight')
     plt.tight_layout()
     plt.show()
     return
@@ -142,7 +142,8 @@ def make_song_title_graph():
     plt.pie(sizes, labels = labels, colors = ['teal', 'purple', 'grey', 'lightcoral', 'lightskyblue'], autopct='%1.0f%%')
     plt.axis('equal')
     plt.title("Length of Song Names on Spotify Top 100")
-    plt.savefig("spotify_piechart.png")
+    plt.tight_layout()
+    plt.savefig("spotify_piechart.png", bbox_inches='tight')
     plt.show()
 
     
